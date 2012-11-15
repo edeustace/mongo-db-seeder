@@ -1,6 +1,8 @@
 sbtPlugin := true
 
-name := "mongo-db-seeder-plugin"
+name := "mongo-db-seeder-sbt"
+
+version := "0.1"
 
 organization := "com.ee"
 

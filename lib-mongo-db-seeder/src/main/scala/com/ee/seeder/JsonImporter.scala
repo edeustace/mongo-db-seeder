@@ -11,8 +11,7 @@ import org.bson.types.ObjectId
 object JsonImporter {
 
 
-  /**
-   * Insert each line of the file as a single object
+  /** Insert each line of the file as a single object
    * @param json
    * @param coll
    */
@@ -26,8 +25,7 @@ object JsonImporter {
     }
   }
 
-  /**
-   * Read a complete file as a single json object
+  /** Read a complete file as a single json object
    * @param jsonPath
    * @param coll
    */
@@ -42,8 +40,7 @@ object JsonImporter {
     insertString(finalObject, coll, true)
   }
 
-  /**
-   * Insert a json file that is a json array of items into the db
+  /** Insert a json file that is a json array of items into the db
    * @param json = the json file
    * @param coll
    */

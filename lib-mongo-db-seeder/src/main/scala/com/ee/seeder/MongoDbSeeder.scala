@@ -10,11 +10,6 @@ object MongoDbSeeder {
 
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
-  private def buildSeedList(path: String): SeedList = {
-    val folder: File = new File(path)
-    val files = for (file <- folder.listFiles()) yield file
-    SeedList(path = path, formats = files.flatMap(getSeedFormat).toList)
-  }
 
   def emptyDb(uri:String, paths:List[String]) {
     val seedLists = paths.map(buildSeedList)
@@ -24,7 +19,22 @@ object MongoDbSeeder {
   }
 
   def seed(uri:String, paths:List[String]) {
+    
+    emptyDb(uri, paths)
+
     paths.foreach( seedPath(uri, _))
+  }
+
+  private def buildSeedList(path: String): SeedList = {
+    val folder: File = new File(path)
+
+    if(folder.exists && folder.isDirectory){
+      val files = for (file <- folder.listFiles()) yield file
+      SeedList(path = path, formats = files.flatMap(getSeedFormat).toList)
+    } else {
+      println("ignored path: " + path)
+      SeedList(path, Seq())
+    } 
   }
 
   private def seedPath(uri: String, path: String) {
