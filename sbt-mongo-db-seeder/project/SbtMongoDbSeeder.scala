@@ -1,17 +1,16 @@
 import sbt._
 import sbt.Keys._
 
-object MongoDbSeederBuild extends Build {
+object SbtMongoDbSeederBuild extends Build {
 
-  lazy val mongoDbSeeder = Project(
-    id = "mongo-db-seeder",
+  lazy val sbtMongoDbSeeder = Project(
+    id = "mongo-db-seeder-sbt",
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
-      name := "Mongo Db Seeder",
+      name := "Mongo Db Seeder Sbt",
       organization := "com.ee",
       version := "0.1",
       scalaVersion := "2.9.1",
-      credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
       publishMavenStyle := true,
       publishTo <<= version { (v: String) =>
         def isSnapshot = v.trim.endsWith("SNAPSHOT") 
@@ -21,7 +20,6 @@ object MongoDbSeederBuild extends Build {
             "Ed Eustace",
             "edeustace.com", 
             "/home/edeustace/edeustace.com/public/repository" + finalPath ))
-
        }
     )
   )
