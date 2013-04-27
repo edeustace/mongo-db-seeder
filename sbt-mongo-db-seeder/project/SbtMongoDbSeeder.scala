@@ -10,15 +10,15 @@ object SbtMongoDbSeederBuild extends Build {
       name := "Mongo Db Seeder Sbt",
       organization := "com.ee",
       version := "0.1",
-      scalaVersion := "2.9.1",
+      scalaVersion := "2.9.2",
       publishMavenStyle := true,
       publishTo <<= version { (v: String) =>
-        def isSnapshot = v.trim.endsWith("SNAPSHOT") 
+        def isSnapshot = v.trim.endsWith("SNAPSHOT")
         val finalPath = (if (isSnapshot) "/snapshots" else "/releases")
         Some(
           Resolver.sftp(
             "Ed Eustace",
-            "edeustace.com", 
+            "edeustace.com",
             "/home/edeustace/edeustace.com/public/repository" + finalPath ))
        }
     )
