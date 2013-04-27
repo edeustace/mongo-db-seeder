@@ -2,7 +2,7 @@
 A library for seeding your mongo db with json files laid out in a certain way. Once installed you just call `seed-dev` to seed the dev db.
 
 # Using in your sbt project
-Have a look at the example project, but basically you do the following:
+Have a look at the example project (in the example folder), but basically you do the following:
 
 Add the dependency in project/plugins.sbt
 
@@ -36,8 +36,6 @@ The default paths are `seed/${mode}` eg: `seed/dev`. To override this add a comm
 
     (test in Test) <<= (test in Test) dependsOn(seedTestTask)
     
-Be sure to look at the example project.
-
 
 ## Seed data format
 The seed data files can be laid out using any of the following conventions:
