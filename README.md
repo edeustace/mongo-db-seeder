@@ -18,14 +18,13 @@ Configure it in build.sbt
 
 ## build.sbt Options
 
-The default uri is your local mongo db + the sbt project name + the mode (dev,test,prod)
-EG: the example project db for dev is:
-    
-    mongodb://localhost:27017/mongo-db-seeder-example-dev
+The default uri is your local mongo db + the sbt project name + the mode (dev,test,prod). 
+
+For example if you have a sbt project called `tadaa`, the mongo uri for dev mode would be `mongodb://localhost:27017/tadaa-dev`
     
 To override this add either `testUri`, `devUri` or `prodUri` eg:
 
-    testUri := "mongodb://localhost:27017/light"
+    testUri := "mongodb://localhost:27017/abrakedabra"
 
 The default paths are `seed/${mode}` eg: `seed/dev`. To override this add a comma delimited list:
 
@@ -36,6 +35,9 @@ The default paths are `seed/${mode}` eg: `seed/dev`. To override this add a comm
 #### Tip: always seed the db before testing:
 
     (test in Test) <<= (test in Test) dependsOn(seedTestTask)
+    
+Be sure to look at the example project.
+
 
 ## Seed data format
 The seed data files can be laid out using any of the following conventions:
