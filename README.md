@@ -1,6 +1,11 @@
 # Mongo db seeder
 A library for seeding your mongo db with json files laid out in a certain way.
 
+## Requirements
+
+- sbt 12
+- scala 2.9.2
+
 ## Running
 
     sbt
