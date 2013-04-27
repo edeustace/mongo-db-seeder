@@ -14,8 +14,12 @@ Configure it in build.sbt
     //Import the MongoDbSeeder settings
     MongoDbSeederPlugin.newSettings
 
-    //Specify a mongo uri for the test environment
-    testUri := "light"
+    //The default uri is your local mongo db + the sbt project name + the mode (dev,test,prod)
+    //EG: the example project db for dev is:
+    //mongodb://localhost:27017/mongo-db-seeder-example-dev
+    
+    //To override this add either testUri, devUri, prodUri eg:
+    testUri := "mongodb://localhost:27017/light"
 
     //Specify some paths that contain seed data for test
     testPaths := "seed/test,seed/common"
