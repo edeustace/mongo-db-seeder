@@ -4,13 +4,13 @@ A library for seeding your mongo db with json files laid out in a certain way.
 # Using in your sbt project
 Have a look at the example project, but basically you do the following:
 
-* project/plugins.sbt
+- project/plugins.sbt
 
     addSbtPlugin("com.ee" % "mongo-db-seeder-sbt" % "0.2-SNAPSHOT")
 
     resolvers += "ed release repo" at "http://edeustace.com/repository/snapshots"
 
-* build.sbt
+- build.sbt
 
     //Import the MongoDbSeeder settings
     MongoDbSeederPlugin.newSettings
