@@ -7,6 +7,7 @@ import com.mongodb.BasicDBObject
 
 class MongoDbSeederSpec extends Specification {
 
+  val rootPath = "modules/lib/"
   val uri = "mongodb://127.0.0.1:27017/mongo-db-seeder-specs"
   val mongoUri: MongoURI = MongoURI(uri)
   var connection: MongoConnection = null
@@ -59,13 +60,13 @@ class MongoDbSeederSpec extends Specification {
 
       MongoDbSeeder.emptyDb(uri,
         List(
-          "src/test/resources/multiple-collections",
-          "src/test/resources/multiple-collections-two"
+          rootPath + "src/test/resources/multiple-collections",
+          rootPath + "src/test/resources/multiple-collections-two"
         ))
     }
 
     "seed from folder with one file with json object on each line" in {
-      MongoDbSeeder.seed(uri, List("src/test/resources/each-line"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/each-line"))
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(2)
@@ -77,7 +78,7 @@ class MongoDbSeederSpec extends Specification {
     step(resetContents())
 
     "seed from list.json" in {
-      MongoDbSeeder.seed(uri, List("src/test/resources/list-json"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/list-json"))
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(3)
@@ -85,7 +86,7 @@ class MongoDbSeederSpec extends Specification {
 
     step(resetContents())
     "seed individual files" in {
-      MongoDbSeeder.seed(uri, List("src/test/resources/individual-files"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/individual-files"))
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(4)

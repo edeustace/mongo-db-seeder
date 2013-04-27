@@ -14,28 +14,9 @@ object Build extends sbt.Build {
   def buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.ee",
     scalaVersion := "2.9.2",
+    version := appVersion,
     resolvers ++= Resolvers.commons,
     parallelExecution in Test := false,
-    scalacOptions := Seq(
-      "-deprecation",
-      "-unchecked" )
-  )
-
-  val lib = Project(name + "-lib", file("modules/lib"), settings = buildSettings)
-    .settings(libraryDependencies ++= Seq(casbah, specs2))
-
-  val plugin = Project(name + "-sbt", file("modules/sbt"), settings = buildSettings)
-    .dependsOn(lib)
-    .settings(sbtPlugin := true)
-
-  val example = Project(name + "-example", file("modules/example"), settings = buildSettings)
-    .dependsOn(plugin, lib)
-
-
-  val main = Project(name, base = file("."))
-    .settings(
-    version := appVersion,
-    organization := "com.ee",
     publishMavenStyle := true,
     publishTo <<= version {
       (v: String) =>
@@ -46,8 +27,28 @@ object Build extends sbt.Build {
             "Ed Eustace",
             "edeustace.com",
             "/home/edeustace/edeustace.com/public/repository" + finalPath))
-    }
+    },
+    scalacOptions := Seq(
+      "-deprecation",
+      "-unchecked")
   )
-    .dependsOn(lib, plugin, example)
-    .aggregate(lib, plugin, example)
+
+  val lib = Project(name + "-lib", file("modules/lib"), settings = buildSettings)
+    .settings(libraryDependencies ++= Seq(casbah, specs2))
+
+  val plugin = Project(name + "-sbt", file("modules/sbt"), settings = buildSettings)
+    .dependsOn(lib)
+    .settings(sbtPlugin := true)
+
+  //val example = Project(name + "-example", file("modules/example"), settings = buildSettings)
+  //  .dependsOn(plugin, lib)
+
+
+  val main = Project(name, base = file("."))
+    .settings(
+    version := appVersion,
+    organization := "com.ee"
+  )
+    .dependsOn(lib, plugin)
+    .aggregate(lib, plugin)
 }
