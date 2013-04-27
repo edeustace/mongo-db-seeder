@@ -1,5 +1,5 @@
 # Mongo db seeder
-A library for seeding your mongo db with json files laid out in a certain way.
+A library for seeding your mongo db with json files laid out in a certain way. Once installed you just call `seed-dev` to seed the dev db.
 
 # Using in your sbt project
 Have a look at the example project, but basically you do the following:
@@ -13,21 +13,28 @@ Configure it in build.sbt
 
     //Import the MongoDbSeeder settings
     MongoDbSeederPlugin.newSettings
-
-    //The default uri is your local mongo db + the sbt project name + the mode (dev,test,prod)
-    //EG: the example project db for dev is:
-    //mongodb://localhost:27017/mongo-db-seeder-example-dev
     
-    //To override this add either testUri, devUri, prodUri eg:
+    //Your options here....
+
+## build.sbt Options
+
+The default uri is your local mongo db + the sbt project name + the mode (dev,test,prod)
+EG: the example project db for dev is:
+    
+    mongodb://localhost:27017/mongo-db-seeder-example-dev
+    
+To override this add either `testUri`, `devUri` or `prodUri` eg:
+
     testUri := "mongodb://localhost:27017/light"
 
-    //Specify some paths that contain seed data for test
+The default paths are `seed/${mode}` eg: `seed/dev`. To override this add a comma delimited list:
+
     testPaths := "seed/test,seed/common"
 
-    //Specify some paths that contain seed data for dev
     devPaths := "seed/common,seed/dev"
 
-    //Tip: always seed the db before testing:
+#### Tip: always seed the db before testing:
+
     (test in Test) <<= (test in Test) dependsOn(seedTestTask)
 
 ## Seed data format
