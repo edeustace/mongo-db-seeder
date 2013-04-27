@@ -4,7 +4,6 @@ import Project._
 
 object Build extends sbt.Build {
 
-
   import Dependencies._
 
   val name = "mongo-db-seeder"
@@ -39,10 +38,6 @@ object Build extends sbt.Build {
   val plugin = Project(name + "-sbt", file("modules/sbt"), settings = buildSettings)
     .dependsOn(lib)
     .settings(sbtPlugin := true)
-
-  //val example = Project(name + "-example", file("modules/example"), settings = buildSettings)
-  //  .dependsOn(plugin, lib)
-
 
   val main = Project(name, base = file("."))
     .settings(
