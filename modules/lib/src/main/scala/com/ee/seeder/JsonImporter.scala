@@ -90,6 +90,7 @@ object JsonImporter {
     val id = if (dbo.get("_id") != null) dbo.get("_id") else NO_ID
 
     if (NO_ID.equals(id)) {
+      Console.println( Console.BLUE + " id: " + id )
       coll.insert(dbo, coll.writeConcern)
     } else {
       coll.findOne( MongoDBObject("_id" -> id) ) match {

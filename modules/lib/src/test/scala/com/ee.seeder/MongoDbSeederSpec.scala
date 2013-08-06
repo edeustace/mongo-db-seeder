@@ -92,6 +92,18 @@ class MongoDbSeederSpec extends Specification {
       count must equalTo(4)
     }
 
+    step(resetContents())
+
+    "retain ids" in {
+
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/with-ids"))
+      Thread.sleep(1000)
+
+      contents.count(new BasicDBObject()) === 1
+      println(contents.findOne().get.get("_id"))
+      println(contents.findOne().get.get("_id").getClass)
+      contents.findOne().get.get("_id") === "000000000000000000000002"
+    }
     step(closeDb())
   }
 
