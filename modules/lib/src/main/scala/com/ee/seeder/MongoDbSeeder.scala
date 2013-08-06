@@ -11,18 +11,29 @@ object MongoDbSeeder {
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
 
-  def emptyDb(uri:String, paths:List[String]) {
+  def emptyDb(uri:String, paths:List[String], log : Boolean = true) : Unit = {
     val seedLists = paths.map(buildSeedList)
     val collectionNames = seedLists.map( _.formats.map(_.collection))
     val stripped = collectionNames.flatten.distinct
-    withDb(uri, stripped, (db : MongoDB, name : String) => db(name).drop())
+
+    def empty(db:MongoDB,name:String) : Unit = {
+      db(name).drop()
+
+      if(log){
+        println( Console.GREEN + " Empty: " + name + " count: " + db(name).count() + Console.RESET + "")
+      }
+    }
+
+    withDb(uri, stripped, empty )
   }
 
-  def seed(uri:String, paths:List[String]) {
-    
-    emptyDb(uri, paths)
-
+  def seed(uri:String, paths:List[String]) : Unit = {
+    emptyDb(uri, paths, true)
     paths.foreach( seedPath(uri, _))
+  }
+
+  def unseed(uri:String, paths:List[String]) : Unit = {
+    emptyDb(uri, paths)
   }
 
   private def buildSeedList(path: String): SeedList = {
@@ -32,7 +43,7 @@ object MongoDbSeeder {
       val files = for (file <- folder.listFiles()) yield file
       SeedList(path = path, formats = files.flatMap(getSeedFormat).toList)
     } else {
-      println("ignored path: " + path)
+      println("Error: ignored path: " + path)
       SeedList(path, Seq())
     } 
   }
@@ -50,6 +61,8 @@ object MongoDbSeeder {
         case JsonFilesAreChildren(c, file) => JsonImporter.insertFilesInFolder(file, collection)
         case _ => //nothing for now
       }
+
+      println( Console.GREEN + "seed: " + collection.name + " " + collection.count() + Console.RESET + "")
     })
   }
 
@@ -68,7 +81,8 @@ object MongoDbSeeder {
         val connection: MongoConnection = MongoConnection(mongoUri)
         val db = connection(dbName)
         list.foreach(fn(db,_))
-        connection.close()
+        //connection.close()
+        connection.underlying.close()
       }
       case _ => //skip for now.
     }

@@ -8,11 +8,13 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val appVersion = "0.2-SNAPSHOT"
+  val appVersion = "0.3-SNAPSHOT"
+
 
   def buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.ee",
     scalaVersion := "2.9.2",
+    crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0"),
     version := appVersion,
     resolvers ++= Resolvers.commons,
     parallelExecution in Test := false,
@@ -39,11 +41,7 @@ object Build extends sbt.Build {
     .dependsOn(lib)
     .settings(sbtPlugin := true)
 
-  val main = Project(name, base = file("."))
-    .settings(
-    version := appVersion,
-    organization := "com.ee"
-  )
+  val main = Project(name, base = file("."), settings = buildSettings )
     .dependsOn(lib, plugin)
     .aggregate(lib, plugin)
 }

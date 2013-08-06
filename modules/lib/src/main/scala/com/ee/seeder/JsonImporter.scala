@@ -1,6 +1,7 @@
 package com.ee.seeder
 
 import com.mongodb.casbah.MongoCollection
+import com.mongodb.casbah.Imports.MongoDBObject
 import scala.io.Codec
 import java.nio.charset.Charset
 import com.mongodb.DBObject
@@ -61,7 +62,7 @@ object JsonImporter {
 
     /**
      * Load a string from a given path.
-     * If it contains an interpolation token load the file from the given path, 
+     * If it contains an interpolation token load the file from the given path,
      * remove new lines and escape "
      * @param path
      * @return
@@ -82,17 +83,20 @@ object JsonImporter {
     interpolated
   }
 
-  def insertString(s: String, coll: MongoCollection, printId: Boolean = false) = {
+  private def insertString(s: String, coll: MongoCollection, printId: Boolean = false) = {
     val dbo: DBObject = JSON.parse(s).asInstanceOf[DBObject]
 
-    val NO_ID = "NO_ID"
-    val id = if (dbo.get("_id") != null) dbo.get("_id").toString else NO_ID
+    val NO_ID = MongoDBObject.empty
+    val id = if (dbo.get("_id") != null) dbo.get("_id") else NO_ID
 
     if (NO_ID.equals(id)) {
       coll.insert(dbo, coll.writeConcern)
     } else {
-      coll.findOneByID(new ObjectId(id)) match {
-        case Some(obj) => throw new RuntimeException("Item already exisits: " + id + " collection: " + coll.name)
+      coll.findOne( MongoDBObject("_id" -> id) ) match {
+        case Some(obj) => {
+          Console.println( Console.YELLOW + " Warning: document with this id already exists: " + id + " collection: " + coll.name + Console.RESET)
+          //throw new RuntimeException("Item already exists: " + id + " collection: " + coll.name)
+        }
         case _ => {
           coll.insert(dbo, coll.writeConcern)
         }
