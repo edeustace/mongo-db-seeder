@@ -7,7 +7,8 @@ import com.mongodb.casbah.{MongoDB, MongoURI, MongoConnection, MongoCollection}
 import com.ee.seeder.log.ConsoleLogger
 import com.ee.seeder.log.ConsoleLogger.Level
 
-class Seeder(val db:MongoDB) extends ConsoleLogger{
+class Seeder(val db:MongoDB, override val mainLevel : Level.Level) extends ConsoleLogger{
+
 
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
@@ -109,7 +110,7 @@ object MongoDbSeeder extends ConsoleLogger{
   def seed(uri:String, paths:List[String]) : Unit = {
     info("seed - uri: " + uri)
     run(uri){ db =>
-      val seeder = new Seeder(db)
+      val seeder = new Seeder(db, logLevel)
       seeder.seed(paths)
     }
   }
@@ -117,7 +118,7 @@ object MongoDbSeeder extends ConsoleLogger{
   def unseed(uri:String, paths:List[String]) : Unit = {
     info("unseed - uri: " + uri)
     run(uri){ db =>
-      val seeder = new Seeder(db)
+      val seeder = new Seeder(db, logLevel)
       seeder.unseed(paths)
     }
   }
