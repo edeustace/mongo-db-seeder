@@ -8,7 +8,7 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val appVersion = "0.3-SNAPSHOT"
+  val appVersion = "0.4-SNAPSHOT"
 
 
   def buildSettings = Defaults.defaultSettings ++ Seq(

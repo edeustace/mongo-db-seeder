@@ -8,9 +8,11 @@ import com.mongodb.DBObject
 import com.mongodb.util.JSON
 import java.io.File
 import org.bson.types.ObjectId
+import com.ee.seeder.log.ConsoleLogger
 
-object JsonImporter {
+object JsonImporter extends ConsoleLogger {
 
+  override def mainLevel = MongoDbSeeder.logLevel
 
   /** Insert each line of the file as a single object
    * @param json
@@ -68,6 +70,9 @@ object JsonImporter {
      * @return
      */
     def loadString(path: String): String = {
+
+      val root = new File(".")
+
       val s = io.Source.fromFile(new File(path))(new Codec(Charset.forName("UTF-8"))).mkString
       val lines = s
         .replace("\n", "\\\n")
@@ -90,20 +95,21 @@ object JsonImporter {
     val id = if (dbo.get("_id") != null) dbo.get("_id") else NO_ID
 
     if (NO_ID.equals(id)) {
-      Console.println( Console.BLUE + " id: " + id )
+      debug("No id specified - just insert")
       coll.insert(dbo, coll.writeConcern)
     } else {
       coll.findOne( MongoDBObject("_id" -> id) ) match {
         case Some(obj) => {
-          Console.println( Console.YELLOW + " Warning: document with this id already exists: " + id + " collection: " + coll.name + Console.RESET)
-          //throw new RuntimeException("Item already exists: " + id + " collection: " + coll.name)
+          warn("Warning: document with this id already exists: " + id + " collection: " + coll.name)
         }
         case _ => {
+          debug("id specified - insert: " + id)
           coll.insert(dbo, coll.writeConcern)
         }
       }
     }
   }
+
 
 
   def insertFilesInFolder(folder : File, collection : MongoCollection) {

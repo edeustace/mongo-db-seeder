@@ -4,7 +4,7 @@ import Keys._
 import com.ee.seeder.MongoDbSeeder
 
 
-object MongoDbSeederPlugin extends Plugin
+object MongoDbSeederPlugin extends Plugin with com.ee.seeder.log.ConsoleLogger
 {
     val seedDevTask = TaskKey[Unit]("seed-dev")
     val seedTestTask = TaskKey[Unit]("seed-test")
@@ -20,27 +20,30 @@ object MongoDbSeederPlugin extends Plugin
     val devUri = SettingKey[String]("dev-uri")
     val devPaths = SettingKey[String]("dev-paths")
 
-    def seed(uri:String,path:String,name:String) {
+    val logLevel = SettingKey[String]("log-level")
+
+    def seed(uri:String,path:String,name:String, logLevel : String) {
+      MongoDbSeeder.logLevel = com.ee.seeder.log.ConsoleLogger.Level.withName(logLevel)
       run("seed",uri,path, MongoDbSeeder.seed)
     }
 
-    def unseed(uri:String,path:String,name:String) {
+    def unseed(uri:String,path:String,name:String, logLevel : String ) {
+      MongoDbSeeder.logLevel = com.ee.seeder.log.ConsoleLogger.Level.withName(logLevel)
       run("unseed",uri,path, MongoDbSeeder.unseed)
     }
 
     private def run(prefix:String, uri:String, path:String, fn:(String,List[String]) => Unit){
-      println("[mongo-db-seeder-sbt] " + prefix)
+      debug(prefix)
       val finalUri = uri.format(name)
-      println("using uri: " + finalUri)
-      println("from path: " + path)
+      info("using uri: " + finalUri + " from path: " + path)
       val paths = path.split(",").toList
 
       try{
         fn(finalUri, paths.toList)
       }
       catch {
-        case e : IllegalArgumentException => println("Something went wrong: " + e.getMessage)
-        case e : Throwable => println("unknown error: " + e.getMessage)
+        case e : IllegalArgumentException => error("Something went wrong: " + e.getMessage)
+        case e : Throwable => error("unknown error: " + e.getMessage)
       }
     }
 
@@ -50,12 +53,13 @@ object MongoDbSeederPlugin extends Plugin
     val newSettings = Seq(
       testUri := defaultUri("test"),
       testPaths := "seed/test",
-      seedTestTask <<= (testUri, testPaths, name ) map(seed),
-      unSeedTestTask <<= (testUri, testPaths, name) map(unseed),
+      seedTestTask <<= (testUri, testPaths, name, logLevel ) map(seed),
+      unSeedTestTask <<= (testUri, testPaths, name, logLevel) map(unseed),
 
       devUri := defaultUri("dev"),
+      logLevel := "OFF",
       devPaths := ("seed/dev"),
-      seedDevTask <<= (devUri, devPaths, name ) map(seed),
-      unSeedDevTask <<= (devUri, devPaths, name) map(unseed)
+      seedDevTask <<= (devUri, devPaths, name, logLevel ) map(seed),
+      unSeedDevTask <<= (devUri, devPaths, name, logLevel) map(unseed)
       )
 }

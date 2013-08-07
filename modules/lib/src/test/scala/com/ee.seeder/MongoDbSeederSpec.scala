@@ -56,7 +56,7 @@ class MongoDbSeederSpec extends Specification {
 
   "seeder" should {
 
-    "seed collections all collection names" in {
+    /*"seed collections all collection names" in {
 
       MongoDbSeeder.emptyDb(uri,
         List(
@@ -85,6 +85,7 @@ class MongoDbSeederSpec extends Specification {
     }
 
     step(resetContents())
+
     "seed individual files" in {
       MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/individual-files"))
       Thread.sleep(1000)
@@ -103,7 +104,15 @@ class MongoDbSeederSpec extends Specification {
       println(contents.findOne().get.get("_id"))
       println(contents.findOne().get.get("_id").getClass)
       contents.findOne().get.get("_id") === "000000000000000000000002"
+    }*/
+
+    step(resetContents())
+
+    "interpolate doesn't strip ids" in {
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/interpolated"))
+      Thread.sleep(1000)
     }
+
     step(closeDb())
   }
 

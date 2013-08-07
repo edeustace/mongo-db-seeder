@@ -4,9 +4,14 @@ import java.io.File
 import scala.Some
 import com.ee.seeder.model._
 import com.mongodb.casbah.{MongoDB, MongoURI, MongoConnection, MongoCollection}
+import com.ee.seeder.log.ConsoleLogger
+import com.ee.seeder.log.ConsoleLogger.Level
 
-object MongoDbSeeder {
+object MongoDbSeeder extends ConsoleLogger{
 
+  var logLevel : Level.Value = Level.ERROR
+
+  override def mainLevel = logLevel
 
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
@@ -20,7 +25,7 @@ object MongoDbSeeder {
       db(name).drop()
 
       if(log){
-        println( Console.GREEN + " Empty: " + name + " count: " + db(name).count() + Console.RESET + "")
+        debug( " Empty: " + name + " count: " + db(name).count() )
       }
     }
 
@@ -28,6 +33,7 @@ object MongoDbSeeder {
   }
 
   def seed(uri:String, paths:List[String]) : Unit = {
+    info("seed - uri: " + uri)
     emptyDb(uri, paths, true)
     paths.foreach( seedPath(uri, _))
   }
@@ -43,26 +49,27 @@ object MongoDbSeeder {
       val files = for (file <- folder.listFiles()) yield file
       SeedList(path = path, formats = files.flatMap(getSeedFormat).toList)
     } else {
-      println("Error: ignored path: " + path)
+      warn("Error: ignored path: " + path)
       SeedList(path, Seq())
     } 
   }
 
   private def seedPath(uri: String, path: String) {
 
+    info("seed - path: " + path)
     val seedList = buildSeedList(path)
 
     withDb(uri, seedList.formats.toList, (db : MongoDB, f : SeedFormat) => {
       val collection: MongoCollection = db(f.collection)
-
+      info("collection: " + collection.name)
+      debug("Before ------> uri: " + uri + " // collection: " + collection.name)
       f match {
         case JsonOnEachLine(c, file) => JsonImporter.jsonLinesToDb(file, collection)
         case JsonListFile(c, file) => JsonImporter.jsonFileListToDb(file, collection)
         case JsonFilesAreChildren(c, file) => JsonImporter.insertFilesInFolder(file, collection)
         case _ => //nothing for now
       }
-
-      println( Console.GREEN + "seed: " + collection.name + " " + collection.count() + Console.RESET + "")
+      debug( "After --> seed: " + collection.name + " " + collection.count() )
     })
   }
 
