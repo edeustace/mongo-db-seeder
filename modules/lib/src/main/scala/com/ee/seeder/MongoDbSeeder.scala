@@ -7,39 +7,32 @@ import com.mongodb.casbah.{MongoDB, MongoURI, MongoConnection, MongoCollection}
 import com.ee.seeder.log.ConsoleLogger
 import com.ee.seeder.log.ConsoleLogger.Level
 
-object MongoDbSeeder extends ConsoleLogger{
-
-  var logLevel : Level.Value = Level.ERROR
-
-  override def mainLevel = logLevel
+class Seeder(val db:MongoDB) extends ConsoleLogger{
 
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
-
-  def emptyDb(uri:String, paths:List[String], log : Boolean = true) : Unit = {
+  def emptyDb(paths:List[String], log : Boolean = true) : Unit = {
     val seedLists = paths.map(buildSeedList)
     val collectionNames = seedLists.map( _.formats.map(_.collection))
     val stripped = collectionNames.flatten.distinct
 
     def empty(db:MongoDB,name:String) : Unit = {
       db(name).drop()
-
       if(log){
         debug( " Empty: " + name + " count: " + db(name).count() )
       }
     }
 
-    withDb(uri, stripped, empty )
+    withDb(stripped, empty )
   }
 
-  def seed(uri:String, paths:List[String]) : Unit = {
-    info("seed - uri: " + uri)
-    emptyDb(uri, paths, true)
-    paths.foreach( seedPath(uri, _))
+  def seed(paths:List[String]) : Unit = {
+    emptyDb(paths, true)
+    paths.foreach( seedPath(_))
   }
 
-  def unseed(uri:String, paths:List[String]) : Unit = {
-    emptyDb(uri, paths)
+  def unseed(paths:List[String]) : Unit = {
+    emptyDb(paths)
   }
 
   private def buildSeedList(path: String): SeedList = {
@@ -51,18 +44,18 @@ object MongoDbSeeder extends ConsoleLogger{
     } else {
       warn("Error: ignored path: " + path)
       SeedList(path, Seq())
-    } 
+    }
   }
 
-  private def seedPath(uri: String, path: String) {
+  private def seedPath(path: String) {
 
     info("seed - path: " + path)
     val seedList = buildSeedList(path)
 
-    withDb(uri, seedList.formats.toList, (db : MongoDB, f : SeedFormat) => {
+    withDb(seedList.formats.toList, (db : MongoDB, f : SeedFormat) => {
       val collection: MongoCollection = db(f.collection)
       info("collection: " + collection.name)
-      debug("Before ------> uri: " + uri + " // collection: " + collection.name)
+      debug("Before collection: " + collection.name)
       f match {
         case JsonOnEachLine(c, file) => JsonImporter.jsonLinesToDb(file, collection)
         case JsonListFile(c, file) => JsonImporter.jsonFileListToDb(file, collection)
@@ -75,25 +68,12 @@ object MongoDbSeeder extends ConsoleLogger{
 
   /**
    * provide a db for a fn so it can do some work, then close the connection.
-   * @param uri
    * @param list
    * @param fn
    * @tparam T
    */
-  private def withDb[T]( uri : String, list : List[T], fn : (MongoDB, T)  => Unit ) {
-    val mongoUri : MongoURI = MongoURI(uri)
+  private def withDb[T]( list : List[T], fn : (MongoDB, T)  => Unit ) : Unit = list.foreach(fn(db,_))
 
-    mongoUri.database match {
-      case Some(dbName) => {
-        val connection: MongoConnection = MongoConnection(mongoUri)
-        val db = connection(dbName)
-        list.foreach(fn(db,_))
-        //connection.close()
-        connection.underlying.close()
-      }
-      case _ => //skip for now.
-    }
-  }
 
   private def getSeedFormat(f: File): Option[SeedFormat] = {
     if (f.isDirectory) {
@@ -114,6 +94,55 @@ object MongoDbSeeder extends ConsoleLogger{
       None
     } else {
       Some(listFile(0))
+    }
+  }
+}
+
+object MongoDbSeeder extends ConsoleLogger{
+
+  var logLevel : Level.Value = Level.ERROR
+
+  override def mainLevel = logLevel
+
+  case class SeedList(path: String, formats: Seq[SeedFormat])
+
+  def seed(uri:String, paths:List[String]) : Unit = {
+    info("seed - uri: " + uri)
+    run(uri){ db =>
+      val seeder = new Seeder(db)
+      seeder.seed(paths)
+    }
+  }
+
+  def unseed(uri:String, paths:List[String]) : Unit = {
+    info("unseed - uri: " + uri)
+    run(uri){ db =>
+      val seeder = new Seeder(db)
+      seeder.unseed(paths)
+    }
+  }
+
+  private def run(uri:String)(fn : (MongoDB => Unit)) : Unit = {
+    connect(uri).map{
+      (tuple) =>
+        val (connection,db) = tuple
+        fn(db)
+        connection.underlying.close()
+    }.getOrElse(warn("No db found!"))
+  }
+
+  private def connect(uri:String) : Option[(MongoConnection, MongoDB)] = {
+    try{
+      val mongoUri : MongoURI = MongoURI(uri)
+      mongoUri.database.map{ n =>
+        val connection: MongoConnection = MongoConnection(mongoUri)
+        (connection,connection(n))
+      }
+    } catch {
+      case e : Throwable => {
+        error("Error: " + e.getMessage)
+        None
+      }
     }
   }
 }

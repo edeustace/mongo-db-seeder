@@ -100,7 +100,7 @@ object JsonImporter extends ConsoleLogger {
     } else {
       coll.findOne( MongoDBObject("_id" -> id) ) match {
         case Some(obj) => {
-          warn("Warning: document with this id already exists: " + id + " collection: " + coll.name)
+          debug( Console.YELLOW + "Warning: " + Console.RESET + " document with this id already exists: " + id + " collection: " + coll.name)
         }
         case _ => {
           debug("id specified - insert: " + id)

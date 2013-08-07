@@ -56,9 +56,9 @@ class MongoDbSeederSpec extends Specification {
 
   "seeder" should {
 
-    /*"seed collections all collection names" in {
+    "seed collections all collection names" in {
 
-      MongoDbSeeder.emptyDb(uri,
+      MongoDbSeeder.unseed(uri,
         List(
           rootPath + "src/test/resources/multiple-collections",
           rootPath + "src/test/resources/multiple-collections-two"
@@ -104,7 +104,7 @@ class MongoDbSeederSpec extends Specification {
       println(contents.findOne().get.get("_id"))
       println(contents.findOne().get.get("_id").getClass)
       contents.findOne().get.get("_id") === "000000000000000000000002"
-    }*/
+    }
 
     step(resetContents())
 

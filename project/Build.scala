@@ -8,12 +8,16 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val appVersion = "0.4-SNAPSHOT"
+  val baseVersion = "0.5"
 
+  lazy val appVersion = {
+    val other = Process("git rev-parse --short HEAD").lines.head
+    baseVersion + "-" + other
+  }
 
   def buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.ee",
-    scalaVersion := "2.9.2",
+    scalaVersion := "2.10.1",
     crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0"),
     version := appVersion,
     resolvers ++= Resolvers.commons,
