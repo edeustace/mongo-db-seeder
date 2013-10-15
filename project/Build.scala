@@ -36,6 +36,7 @@ object Build extends sbt.Build {
       "-unchecked")
   )
 
+
   val lib = Project(name + "-lib", file("modules/lib"), settings = buildSettings)
     .settings(libraryDependencies ++= Seq(casbah, specs2))
 
