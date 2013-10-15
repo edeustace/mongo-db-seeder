@@ -22,7 +22,6 @@ object Build extends sbt.Build {
     version := appVersion,
     resolvers ++= Resolvers.commons,
     parallelExecution in Test := false,
-    publishMavenStyle := true,
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishTo <<= version {
       (v: String) =>
