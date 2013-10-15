@@ -8,7 +8,7 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val baseVersion = "0.5"
+  val baseVersion = "0.6"
 
   lazy val appVersion = {
     val other = Process("git rev-parse --short HEAD").lines.head
@@ -16,22 +16,21 @@ object Build extends sbt.Build {
   }
 
   def buildSettings = Defaults.defaultSettings ++ Seq(
-    organization := "com.ee",
+    organization := "org.corespring",
     scalaVersion := "2.10.1",
     crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0"),
     version := appVersion,
     resolvers ++= Resolvers.commons,
     parallelExecution in Test := false,
     publishMavenStyle := true,
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishTo <<= version {
       (v: String) =>
         def isSnapshot = v.trim.contains("-")
-        val finalPath = (if (isSnapshot) "/snapshots" else "/releases")
-        Some(
-          Resolver.sftp(
-            "Ed Eustace",
-            "edeustace.com",
-            "/home/edeustace/edeustace.com/public/repository" + finalPath))
+        val base = "http://repository.corespring.org/artifactory"
+        val repoType = if (isSnapshot) "snapshot" else "release"
+        val finalPath = base + "/ivy-" + repoType + "s"
+        Some( "Artifactory Realm" at finalPath )
     },
     scalacOptions := Seq(
       "-deprecation",
