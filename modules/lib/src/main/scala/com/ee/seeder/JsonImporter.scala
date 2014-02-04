@@ -75,6 +75,7 @@ object JsonImporter extends ConsoleLogger {
 
       val s = io.Source.fromFile(new File(path))(new Codec(Charset.forName("UTF-8"))).mkString
       val lines = s
+        .replace("\\", "\\\\\\\\")
         .replace("\n", "\\\n")
         .replace("\"", "'")
         .replace("$", "\\\\\\$")
