@@ -27,7 +27,7 @@ class Seeder(val db:MongoDB, override val mainLevel : Level.Level) extends Conso
     withDb(stripped, empty )
   }
 
-  def seed(paths:List[String], empty : Boolean = true) : Unit = {
+  def seed(paths:List[String], empty : Boolean = false) : Unit = {
     if(empty){
       emptyDb(paths, true)
     }
