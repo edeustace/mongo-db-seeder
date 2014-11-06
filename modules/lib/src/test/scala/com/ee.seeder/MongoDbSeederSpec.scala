@@ -66,7 +66,7 @@ class MongoDbSeederSpec extends Specification {
     }
 
     "seed from folder with one file with json object on each line" in {
-      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/each-line"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/each-line"), true)
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(2)
@@ -78,7 +78,7 @@ class MongoDbSeederSpec extends Specification {
     step(resetContents())
 
     "seed from list.json" in {
-      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/list-json"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/list-json"), true)
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(3)
@@ -87,7 +87,7 @@ class MongoDbSeederSpec extends Specification {
     step(resetContents())
 
     "seed individual files" in {
-      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/individual-files"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/individual-files"),true)
       Thread.sleep(1000)
       val count = contents.count(new BasicDBObject())
       count must equalTo(4)
@@ -97,7 +97,7 @@ class MongoDbSeederSpec extends Specification {
 
     "retain ids" in {
 
-      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/with-ids"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/with-ids"),true)
       Thread.sleep(1000)
 
       contents.count(new BasicDBObject()) === 1
@@ -109,7 +109,7 @@ class MongoDbSeederSpec extends Specification {
     step(resetContents())
 
     "interpolate doesn't strip ids" in {
-      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/interpolated"))
+      MongoDbSeeder.seed(uri, List( rootPath + "src/test/resources/interpolated"),true)
       Thread.sleep(1000)
     }
 

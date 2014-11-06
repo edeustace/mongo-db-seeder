@@ -14,20 +14,22 @@ object MongoDbSeederPlugin extends Plugin with com.ee.seeder.log.ConsoleLogger {
 
   val testUri = SettingKey[String]("test-uri")
   val testPaths = SettingKey[String]("test-paths")
+  val testClear = SettingKey[Boolean]("test-clear")
 
   val devUri = SettingKey[String]("dev-uri")
   val devPaths = SettingKey[String]("dev-paths")
+  val devClear = SettingKey[Boolean]("dev-clear")
 
   val logLevel = SettingKey[String]("log-level")
 
-  def seed(uri: String, path: String, name: String, logLevel: String, clear: Boolean = false) {
+  def seed(uri: String, path: String, name: String, logLevel: String, clear: Boolean) {
     MongoDbSeeder.logLevel = com.ee.seeder.log.ConsoleLogger.Level.withName(logLevel)
     run("seed", uri, path, (uri:String, paths:List[String]) => MongoDbSeeder.seed(uri,paths,clear))
   }
 
   def unseed(uri: String, path: String, name: String, logLevel: String) {
     MongoDbSeeder.logLevel = com.ee.seeder.log.ConsoleLogger.Level.withName(logLevel)
-    run("unseed", uri, path, true, MongoDbSeeder.unseed)
+    run("unseed", uri, path, MongoDbSeeder.unseed)
   }
 
   private def run(prefix: String, uri: String, path: String, fn: (String, List[String]) => Unit) {
@@ -44,17 +46,19 @@ object MongoDbSeederPlugin extends Plugin with com.ee.seeder.log.ConsoleLogger {
     }
   }
 
-  def defaultUri(key: String) = "mongodb://localhost:27017/%s-" + key
+  def defaultUri(key: String) : String = "mongodb://localhost:27017/%s-" + key
 
   val newSettings = Seq(
     testUri := defaultUri("test"),
     testPaths := "seed/test",
-    seedTestTask <<= (testUri, testPaths, name, logLevel) map (seed),
+    testClear := true,
+    seedTestTask <<= (testUri, testPaths, name, logLevel, testClear) map (seed),
     unSeedTestTask <<= (testUri, testPaths, name, logLevel) map (unseed),
 
     devUri := defaultUri("dev"),
     logLevel := "OFF",
-    devPaths := ("seed/dev"),
-    seedDevTask <<= (devUri, devPaths, name, logLevel) map (seed),
+    devPaths := "seed/dev",
+    devClear := true,
+    seedDevTask <<= (devUri, devPaths, name, logLevel, devClear) map (seed),
     unSeedDevTask <<= (devUri, devPaths, name, logLevel) map (unseed))
 }

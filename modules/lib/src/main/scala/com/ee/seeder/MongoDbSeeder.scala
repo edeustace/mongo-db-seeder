@@ -26,8 +26,8 @@ class Seeder(val db: MongoDB, override val mainLevel: Level.Level) extends Conso
     withDb(stripped, empty)
   }
 
-  def seed(paths: List[String], empty: Boolean = false): Unit = {
-    if (empty) {
+  def seed(paths: List[String], clear: Boolean): Unit = {
+    if (clear) {
       emptyDb(paths, true)
     }
     paths.foreach(seedPath(_))
@@ -107,11 +107,11 @@ object MongoDbSeeder extends ConsoleLogger {
 
   case class SeedList(path: String, formats: Seq[SeedFormat])
 
-  def seed(uri: String, paths: List[String]): Unit = {
+  def seed(uri: String, paths: List[String], clear:Boolean): Unit = {
     info("seed - uri: " + uri)
     run(uri) { db =>
       val seeder = new Seeder(db, logLevel)
-      seeder.seed(paths)
+      seeder.seed(paths,clear)
     }
   }
 
