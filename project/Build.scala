@@ -8,7 +8,7 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val baseVersion = "0.6"
+  val baseVersion = "0.8"
 
   lazy val appVersion = {
     val other = Process("git rev-parse --short HEAD").lines.head
