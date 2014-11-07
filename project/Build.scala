@@ -1,6 +1,5 @@
 import sbt._
 import Keys._
-import Project._
 
 object Build extends sbt.Build {
 
@@ -8,9 +7,9 @@ object Build extends sbt.Build {
 
   val name = "mongo-db-seeder"
 
-  val baseVersion = "0.8"
+  val baseVersion = "0.9"
 
-  lazy val appVersion = {
+  lazy val appVersion: String = {
     val other = Process("git rev-parse --short HEAD").lines.head
     baseVersion + "-" + other
   }
@@ -29,22 +28,20 @@ object Build extends sbt.Build {
         val base = "http://repository.corespring.org/artifactory"
         val repoType = if (isSnapshot) "snapshot" else "release"
         val finalPath = base + "/ivy-" + repoType + "s"
-        Some( "Artifactory Realm" at finalPath )
+        Some("Artifactory Realm" at finalPath)
     },
     scalacOptions := Seq(
       "-deprecation",
-      "-unchecked")
-  )
+      "-unchecked"))
 
-
-  val lib = Project(name + "-lib", file("modules/lib"), settings = buildSettings)
+  lazy val lib = Project(name + "-lib", file("modules/lib"), settings = buildSettings)
     .settings(libraryDependencies ++= Seq(casbah, specs2))
 
   val plugin = Project(name + "-sbt", file("modules/sbt"), settings = buildSettings)
     .dependsOn(lib)
     .settings(sbtPlugin := true)
 
-  val main = Project(name, base = file("."), settings = buildSettings )
+  val main = Project(name, base = file("."), settings = buildSettings)
     .dependsOn(lib, plugin)
     .aggregate(lib, plugin)
 }
