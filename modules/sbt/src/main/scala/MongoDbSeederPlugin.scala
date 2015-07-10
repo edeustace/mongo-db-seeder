@@ -20,7 +20,7 @@ object MongoDbSeederPlugin extends Plugin with com.ee.seeder.log.ConsoleLogger {
   val devPaths = SettingKey[String]("dev-paths")
   val devClear = SettingKey[Boolean]("dev-clear")
 
-  val logLevel = SettingKey[String]("log-level")
+  val seederLogLevel = SettingKey[String]("seeder-log-level")
 
   def seed(uri: String, path: String, name: String, logLevel: String, clear: Boolean) {
     MongoDbSeeder.logLevel = com.ee.seeder.log.ConsoleLogger.Level.withName(logLevel)
@@ -52,13 +52,13 @@ object MongoDbSeederPlugin extends Plugin with com.ee.seeder.log.ConsoleLogger {
     testUri := defaultUri("test"),
     testPaths := "seed/test",
     testClear := true,
-    seedTestTask <<= (testUri, testPaths, name, logLevel, testClear) map (seed),
-    unSeedTestTask <<= (testUri, testPaths, name, logLevel) map (unseed),
+    seedTestTask <<= (testUri, testPaths, name, seederLogLevel, testClear) map (seed),
+    unSeedTestTask <<= (testUri, testPaths, name, seederLogLevel) map (unseed),
 
     devUri := defaultUri("dev"),
-    logLevel := "OFF",
+    seederLogLevel := "OFF",
     devPaths := "seed/dev",
     devClear := true,
-    seedDevTask <<= (devUri, devPaths, name, logLevel, devClear) map (seed),
-    unSeedDevTask <<= (devUri, devPaths, name, logLevel) map (unseed))
+    seedDevTask <<= (devUri, devPaths, name, seederLogLevel, devClear) map (seed),
+    unSeedDevTask <<= (devUri, devPaths, name, seederLogLevel) map (unseed))
 }
